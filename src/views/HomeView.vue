@@ -1,17 +1,17 @@
 <template>
   <v-container class="page">
-    <hello-world />
+    <GradeCalCard />
   </v-container>
 </template>
 
 <script>
-  import HelloWorld from '../components/HelloWorld'
+  import GradeCalCard from '../components/GradeCalCard.vue'
 
   export default {
     name: 'Home',
 
     components: {
-      HelloWorld,
+      GradeCalCard,
     },
   }
 </script>
