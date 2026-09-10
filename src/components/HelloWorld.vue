@@ -1,61 +1,179 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-pwa" target="_blank" rel="noopener">pwa</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-router" target="_blank" rel="noopener">router</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-vuex" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
-  </div>
+  <v-card class="card" max-width="440" elevation="2">
+    <div>
+      <h1 class = "title-text">กรอกคะแนน</h1>
+      <p class="subtitle-text">กรอกคะแนนแล้วกดปุ่มเพื่อดูเกรดที่ได้</p>
+  
+
+      <v-text-field 
+        name="score" 
+        label="กรอกคะแนน(0-100)" 
+        id = "score" 
+        v-model="score"
+        prepend-inner-icon="mdi-pencil-outline"
+        @keyup.enter="checkGrade()"
+      >
+      </v-text-field>
+
+      <v-btn color="primary" @click="checkGrade()">ตัดเกรด</v-btn>
+
+      <v-alert
+          v-if="error"
+          type="error"
+          variant="tonal"
+          density="compact"
+          class="mt-4"
+        >
+          {{ error }}
+        </v-alert>
+
+      <div v-if="grade" class="result-box">
+          <span class="grade-letter" :style="{ color: gradeColor }">
+            {{ grade }}
+          </span>
+          <span class="result-text">
+            คะแนน <strong>{{ value }}</strong> คะแนน
+          </span>
+        </div>
+
+        <table class="range-table">
+          <tr v-for="g in ranges" :key="g.letter" :class="{ active: grade === g.letter }">
+            <td>{{ g.letter }}</td>
+            <td>{{ g.min }} - {{ g.max }}</td>
+          </tr>
+        </table>
+    </div>
+  </v-card>
 </template>
 
 <script>
 export default {
-  name: 'HelloWorld',
-  props: {
-    msg: String
+  data() {
+    return {
+      score: '',
+      value: null,
+      grade: '',
+      error: '',
+      ranges: [
+        { letter: 'A', min: 80, max: 100, color: '#2E7D5B' },
+        { letter: 'B', min: 70, max: 79,  color: '#3D5A80' },
+        { letter: 'C', min: 60, max: 69,  color: '#B08900' },
+        { letter: 'D', min: 50, max: 59,  color: '#C2622C' },
+        { letter: 'F', min: 0,  max: 49,  color: '#B3392F' }
+      ]
+    }
+  },
+
+  computed: {
+    gradeColor() {
+      const found = this.ranges.find(g => g.letter === this.grade);
+      return found ? found.color : '#000000';
+    }
+  },
+
+  methods: {
+    checkGrade(){
+      this.grade = '';
+      this.value = null;
+      this.error = '';
+
+      const raw = this.score.trim();
+
+      if (raw === '') {
+        this.error = 'กรุณากรอกคะแนนก่อน Enter';
+        return;
+      }
+
+      const num = Number(raw);
+
+       if (isNaN(num)) {
+        this.error = 'กรุณากรอกเป็นตัวเลขเท่านั้น ห้ามกรอกตัวอักษร';
+        return;
+      }
+
+      if (num < 0 || num > 100) {
+        this.error = 'คะแนนต้องอยู่ในช่วง 0 - 100 เท่านั้น';
+        return;
+      }
+
+      this.value = num;
+
+      
+      if (num >= 80) {
+        this.grade = 'A';
+      } else if (num >= 70) {
+        this.grade = 'B';
+      } else if (num >= 60) {
+        this.grade = 'C';
+      } else if (num >= 50) {
+        this.grade = 'D';
+      } else {
+        this.grade = 'F';
+      }
+    }
   }
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-h3 {
-  margin: 40px 0 0;
+<style>
+
+  .card {
+    width: 100%;
+    padding: 28px;
+    border-radius: 8px;
+  }
+
+  .title-text {
+    margin: 0 0 4px;
+    font-size: 22px;
+    color: #32B531;
+  }
+
+  .subtitle-text {
+    margin: 0 0 20px;
+    font-size: 14px;
+    color: #6B7A87;
+  }
+
+  .result-box {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid #E0E0E0;
+  }
+
+  .grade-letter {
+  font-size: 72px;
+  line-height: 0.85;
+  font-weight: 500;
 }
-ul {
-  list-style-type: none;
-  padding: 0;
+
+.result-text {
+  font-size: 15px;
+  color: #6B7A87;
 }
-li {
-  display: inline-block;
-  margin: 0 10px;
+
+.range-table {
+  width: 100%;
+  margin-top: 24px;
+  border-collapse: collapse;
+  font-size: 13px;
+  color: #90A4AE;
 }
-a {
-  color: #42b983;
+
+.range-table td {
+  padding: 6px 0;
+  border-top: 1px solid #ECEFF1;
+}
+
+.range-table td:last-child {
+  text-align: right;
+}
+
+.range-table tr.active td {
+  color: #22303C;
+  font-weight: 700;
 }
 </style>
