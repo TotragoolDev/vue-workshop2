@@ -1,6 +1,5 @@
 <template>
   <v-card class="card" max-width="440" elevation="2">
-    <div>
       <h1 class = "title-text">กรอกคะแนน</h1>
       <p class="subtitle-text">กรอกคะแนนแล้วกดปุ่มเพื่อดูเกรดที่ได้</p>
   
@@ -42,7 +41,6 @@
             <td>{{ g.min }} - {{ g.max }}</td>
           </tr>
         </table>
-    </div>
   </v-card>
 </template>
 
